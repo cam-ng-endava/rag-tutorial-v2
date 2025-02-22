@@ -1,7 +1,7 @@
 import argparse
-from langchain.vectorstores.chroma import Chroma
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms.ollama import Ollama
+from langchain_community.vectorstores import Chroma
 
 from get_embedding_function import get_embedding_function
 
@@ -24,6 +24,7 @@ def main():
     parser.add_argument("query_text", type=str, help="The query text.")
     args = parser.parse_args()
     query_text = args.query_text
+    print(query_text, "----------->query_text")
     query_rag(query_text)
 
 
