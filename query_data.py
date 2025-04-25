@@ -4,6 +4,7 @@ from langchain_community.llms.ollama import Ollama
 from langchain_community.vectorstores import Chroma
 
 from get_embedding_function import get_embedding_function
+from langchain_community.vectorstores import Feiss
 
 CHROMA_PATH = "chroma"
 
@@ -25,6 +26,7 @@ def main():
     args = parser.parse_args()
     query_text = args.query_text
     print(query_text, "----------->query_text")
+    #query rag
     query_rag(query_text)
 
 

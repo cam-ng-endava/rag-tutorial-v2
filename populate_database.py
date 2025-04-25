@@ -1,6 +1,9 @@
 import argparse
 import os
 import shutil
+import faiss
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 from langchain.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
@@ -23,16 +26,19 @@ def main():
         clear_database()
 
     # Create (or update) the data store.
+    #1 load documents
     documents = load_documents()
+    #2 split documents to chunks
     chunks = split_documents(documents)
-    add_to_chroma(chunks)
+    #3 add chunks to database
+    add_to_vector_db(chunks)
 
-
+# 1.1Load data folder: DATA_PATH
 def load_documents():
     document_loader = PyPDFDirectoryLoader(DATA_PATH)
     return document_loader.load()
 
-
+# 1.2 Split the documents into chunks
 def split_documents(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
@@ -43,12 +49,13 @@ def split_documents(documents: list[Document]):
     return text_splitter.split_documents(documents)
 
 
-def add_to_chroma(chunks: list[Document]):
+def add_to_vector_db(chunks: list[Document]):
     # Load the existing database.
     db = Chroma(
         persist_directory=CHROMA_PATH, embedding_function=get_embedding_function()
     )
 
+    #1.3.2 Calculate ID for each chunk then add them to the database that is created above
     # Calculate Page IDs.
     chunks_with_ids = calculate_chunk_ids(chunks)
 
@@ -72,6 +79,8 @@ def add_to_chroma(chunks: list[Document]):
         print("✅ No new documents to add")
 
 
+# This will create IDs like "data/monopoly.pdf:6:2"
+# Page Source : Page Number : Chunk Index
 def calculate_chunk_ids(chunks):
 
     # This will create IDs like "data/monopoly.pdf:6:2"
